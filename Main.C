@@ -7,6 +7,9 @@
 #include "Rotate3D.h"
 #include "Proto.h"
 
+#define GL_GLEXT_PROTOTYPES
+#include <GL/glut.h>
+
 #include "MathFunctions.h"
 #include "Matrix.h"
 #include "OpenGLIndexBuffer.h"
@@ -216,9 +219,11 @@ void debug_text()
 
 void RedrawCallback()
 	{
-	Clear();
+	glClearColor(1.0f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
+/*
 int main(int argc, char *argv[])
 	{
 	extern Display *MyDisplay;
@@ -343,6 +348,30 @@ int main(int argc, char *argv[])
 		useBeta = 0;
 		useGamma = 0;
 		multSign = 1;
+		}
+
+	return 0;
+	}
+*/
+
+int main(int argc, char *argv[])
+	{
+	extern Display *MyDisplay;
+	OpenVideo();
+	RedrawCallback();
+
+	time_t t;
+	srand((unsigned)time(&t));
+
+	FOREVER
+		{
+		RedrawCallback();
+
+		
+
+		TestEvents();
+		XFlush(MyDisplay);
+		usleep(10000);
 		}
 
 	return 0;

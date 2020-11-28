@@ -4,7 +4,7 @@ PROTO=MakeProto $< >$(PROT)/`basename $< .C`.proto ; cat $(PROT)/*.proto >Proto.
 OPTIM=-O0 -g
 CFLAGS=-Wall -include Rotate3D.h
 CC=$(PROTO) ; g++ $(CFLAGS) $(OPTIM)
-LIBS=-L/usr/X11R6/lib -lXt -lXext -lX11 -lm
+LIBS=-L/usr/X11R6/lib -lXt -lXext -lX11 -lglut -lGL -lGLU -lm
 
 FILES=$(OBJ)Gfx.o $(OBJ)MathFunctions.o $(OBJ)Matrix.o $(OBJ)OpenGLVertexBuffer.o $(OBJ)OpenGLIndexBuffer.o $(OBJ)Main.o 
 

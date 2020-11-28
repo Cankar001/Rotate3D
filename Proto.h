@@ -33,6 +33,7 @@ void      draw_lines(void);                                                     
 void      debug_text(void);                                                                          /* Main.C */
 void      RedrawCallback(void);                                                                      /* Main.C */
 int       main(int argc, char *argv[]);                                                              /* Main.C */
+int       main(int argc, char *argv[]);                                                              /* Main.C */
 double    to_radians(double degrees);                                                                /* MathFunctions.C */
 double    to_degrees(double radians);                                                                /* MathFunctions.C */
 double   *create_identity(void);                                                                     /* Matrix.C */

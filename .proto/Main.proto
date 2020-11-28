@@ -5,3 +5,4 @@ void      draw_lines(void);                                                     
 void      debug_text(void);                                                                          /* Main.C */
 void      RedrawCallback(void);                                                                      /* Main.C */
 int       main(int argc, char *argv[]);                                                              /* Main.C */
+int       main(int argc, char *argv[]);                                                              /* Main.C */

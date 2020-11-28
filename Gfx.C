@@ -1,7 +1,12 @@
 #include "Rotate3D.h"
 
+#include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glu.h>
+
 Display       *MyDisplay;
 Screen        *MyScreen;
+Window         RootWin;
 GC             MyGC, InvGC;           // Graphical Context
 int            MyWindow;              // Window - ID
 XTextProperty  WindowNameX;
@@ -30,18 +35,24 @@ void OpenVideo()
    XSetWindowAttributes Attr;
    unsigned int         AttrMask;
    XColor               Got, Should;
+   XVisualInfo          *vi;
+   GLXContext           glc;
+   GLint                att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
    BOOL succ;
    
-   MyDisplay = XOpenDisplay(NULL);
-   MyScreen = (Screen*)DefaultScreenOfDisplay(MyDisplay);
-   MyScreenNumber=DefaultScreen(MyDisplay);
-   Width         =DisplayWidth( MyDisplay, MyScreenNumber);
-   Height        =DisplayHeight(MyDisplay, MyScreenNumber);
-   MyWindow = XCreateSimpleWindow(MyDisplay, RootWindow(MyDisplay, MyScreenNumber), 
-              0, 0, XSIZE, YSIZE, 1,                   // 1 = Border Width
-              WhitePixel(MyDisplay, MyScreenNumber),
-              BlackPixel(MyDisplay, MyScreenNumber));
-   err = XStringListToTextProperty(&WindowName, 1, &WindowNameX);
+   MyDisplay             = XOpenDisplay(NULL);
+   vi                    = glXChooseVisual(MyDisplay, 0, att);
+   cmap                  = XCreateColormap(MyDisplay, root, vi->visual, AllocNone);
+   MyScreen              = (Screen*)DefaultScreenOfDisplay(MyDisplay);
+   MyScreenNumber        = DefaultScreen(MyDisplay);
+   Width                 = DisplayWidth( MyDisplay, MyScreenNumber);
+   Height                = DisplayHeight(MyDisplay, MyScreenNumber);
+   RootWin               = RootWindow(MyDisplay, MyScreenNumber);
+   MyWindow              = XCreateSimpleWindow(MyDisplay, RootWin, 
+                                               0, 0, XSIZE, YSIZE, 1,                   // 1 = Border Width
+                                               WhitePixel(MyDisplay, MyScreenNumber),
+                                               BlackPixel(MyDisplay, MyScreenNumber));
+   err                   = XStringListToTextProperty(&WindowName, 1, &WindowNameX);
 
    C_Hints.res_class     = (char*)"PF Window";
    C_Hints.res_name      = (char*)"PF";
@@ -49,33 +60,42 @@ void OpenVideo()
    WM_Hints.input        = 1;                                              // Wir wollen Input!
    WM_Hints.flags        = InputHint;                                      // | StateHint
 
-   SizeHints.flags     = USPosition | USSize | PPosition | PSize | PMinSize;
-   SizeHints.x         = 1;
-   SizeHints.y         = 1;                                                // Hier geben wir an, wo das
-   SizeHints.width     = XSIZE;                                            // Window erscheinen soll, 
-   SizeHints.height    = YSIZE;                                            // und dass man seine Groesse
-   SizeHints.min_width = 10;                                               // veraendern darf.
-   SizeHints.max_width = 10;
+   SizeHints.flags       = USPosition | USSize | PPosition | PSize | PMinSize;
+   SizeHints.x           = 1;
+   SizeHints.y           = 1;                                                // Hier geben wir an, wo das
+   SizeHints.width       = XSIZE;                                            // Window erscheinen soll, 
+   SizeHints.height      = YSIZE;                                            // und dass man seine Groesse
+   SizeHints.min_width   = 10;                                               // veraendern darf.
+   SizeHints.max_width   = 10;
 
    XSetWMProperties(MyDisplay, MyWindow, &WindowNameX, &WindowNameX, 0, 0, &SizeHints, &WM_Hints, &C_Hints);
-   Attr.save_under    = TRUE;                                            // Andere Windows nicht �berschreiben.
-   Attr.backing_store = Always; //WhenMapped;                            // Unser Window nicht ueberschreiben lassen.
-   Attr.event_mask    = ExposureMask | KeyPressMask | ButtonMotionMask   // Das interessiert uns alles.
-                      | ButtonPressMask | ButtonReleaseMask
-                      | PointerMotionMask;
-   AttrMask=CWBackingStore | CWSaveUnder | CWEventMask;
-   err = XChangeWindowAttributes(MyDisplay, MyWindow, AttrMask, &Attr);
+   Attr.colormap         = cmap;
+   Attr.save_under       = TRUE;                                            // Andere Windows nicht �berschreiben.
+   Attr.backing_store    = Always; //WhenMapped;                            // Unser Window nicht ueberschreiben lassen.
+   Attr.event_mask       = ExposureMask | KeyPressMask | ButtonMotionMask   // Das interessiert uns alles.
+                         | ButtonPressMask | ButtonReleaseMask
+                         | PointerMotionMask;
+   AttrMask              = CWBackingStore | CWSaveUnder | CWEventMask;
+   err                   = XChangeWindowAttributes(MyDisplay, MyWindow, AttrMask, &Attr);
 
-   Font_Info = XLoadQueryFont(MyDisplay, "-misc-fixed-medium-r-*-*-12-*-*-*-*-*-*-*");   // -bold- ist noch kleiner
+   Font_Info             = XLoadQueryFont(MyDisplay, "-misc-fixed-medium-r-*-*-12-*-*-*-*-*-*-*");   // -bold- ist noch kleiner
    if (!Font_Info)  printf("Font -misc-fixed-medium-r-*-*-7-*-*-*-*-*-*-* wurde nicht gefunden\n");
-   FontSmall_Info = XLoadQueryFont(MyDisplay, "-misc-fixed-bold-r-*-*-7-*-*-*-*-*-*-*");   // -bold- ist noch kleiner
+
+   FontSmall_Info        = XLoadQueryFont(MyDisplay, "-misc-fixed-bold-r-*-*-7-*-*-*-*-*-*-*");   // -bold- ist noch kleiner
    if (!Font_Info)  printf("SmallFont -misc-fixed-bold-r-*-*-7-*-*-*-*-*-*-* wurde nicht gefunden\n");
-   FontBig_Info = XLoadQueryFont(MyDisplay, "-adobe-helvetica-bold-r-*-*-24-*-*-*-p-*-iso8859-*");
+
+   FontBig_Info          = XLoadQueryFont(MyDisplay, "-adobe-helvetica-bold-r-*-*-24-*-*-*-p-*-iso8859-*");
    if (!Font_Info)  printf("BigFont -adobe-helvetica-bold-r-*-*-24-*-*-*-p-*-iso8859-* wurde nicht gefunden\n");
 
    // Nun endlich sind wir in der Lage, das Fenster anzuzeigen
    XMapWindow(MyDisplay, MyWindow);
 
+   // Zum Zeichen in das Fenster braucht man einen "Graphical Context" (GC)
+   glc                   = glXCreateContext(MyDisplay, vi, NULL, GL_TRUE);
+   glXMakeCurrent(MyDisplay, MyWindow, glc);
+   glEnable(GL_DEPTH_TEST); 
+
+/*
    // Zum Zeichen in das Fenster braucht man einen "Graphical Context" (GC)
    Values.cap_style = CapButt;
    MyGC = XCreateGC(MyDisplay, MyWindow, 0, &Values);
@@ -90,11 +110,13 @@ void OpenVideo()
    Values.function = GXinvert;
    XChangeGC(MyDisplay, InvGC, GCFunction, &Values);
    XSetForeground(MyDisplay, InvGC, MyBlue);
-   
+*/
+
    // Jetzt warten wir auf ein "Expose", das ist ein Event,
    // der dann eintritt, wenn unser Fenster wirklich dargestellt wurde.
    XFlush(MyDisplay);
-   do {
+   do
+      {
       if (!XCheckMaskEvent(MyDisplay, -1, &Report))  continue;
       } while (Report.type != Expose);
    
