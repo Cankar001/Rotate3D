@@ -1,0 +1,3 @@
+ULONG     create_index_buffer(void *data, ULONG size);                                               /* OpenGLIndexBuffer.C */
+void      delete_index_buffer(ULONG rendererID);                                                     /* OpenGLIndexBuffer.C */
+void      set_index_buffer(ULONG rendererID, void *data, ULONG size);                                /* OpenGLIndexBuffer.C */

@@ -1,0 +1,7 @@
+void      calculate_rotation_matrix(void);                                                           /* Main.C */
+void      calculate_transform(void);                                                                 /* Main.C */
+void      draw_normals(double normalenVektor[], BYTE lastPos, BYTE *pos);                            /* Main.C */
+void      draw_lines(void);                                                                          /* Main.C */
+void      debug_text(void);                                                                          /* Main.C */
+void      RedrawCallback(void);                                                                      /* Main.C */
+int       main(int argc, char *argv[]);                                                              /* Main.C */

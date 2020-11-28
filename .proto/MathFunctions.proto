@@ -1,0 +1,2 @@
+double    to_radians(double degrees);                                                                /* MathFunctions.C */
+double    to_degrees(double radians);                                                                /* MathFunctions.C */

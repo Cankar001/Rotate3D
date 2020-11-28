@@ -1,0 +1,3 @@
+ULONG     create_vertex_buffer(void *data, ULONG size);                                              /* OpenGLVertexBuffer.C */
+void      delete_vertex_buffer(ULONG rendererID);                                                    /* OpenGLVertexBuffer.C */
+void      set_vertex_buffer(ULONG rendererID, void *data, ULONG size);                               /* OpenGLVertexBuffer.C */

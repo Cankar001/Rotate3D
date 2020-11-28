@@ -1,0 +1,10 @@
+double   *create_identity(void);                                                                     /* Matrix.C */
+double   *create_translation(double x, double y, double z);                                          /* Matrix.C */
+double   *create_scale(double x, double y, double z);                                                /* Matrix.C */
+double   *create_rotation(double radians, double x, double y, double z);                             /* Matrix.C */
+void      add_matrices(double *result, double *mat1, double *mat2);                                  /* Matrix.C */
+void      subtract_matrices(double *result, double *mat1, double *mat2);                             /* Matrix.C */
+void      multiply_matrices(double *result, double *mat1, double *mat2);                             /* Matrix.C */
+double   *create_perspective(double fov, double aspectRatio, double zNear, double zFar);             /* Matrix.C */
+double   *create_orthographic(double left, double right, double bottom, double top, double zNear, double zFar); /* Matrix.C */
+void      cross(double *result, double vector[], double other[]);                                    /* Matrix.C */
