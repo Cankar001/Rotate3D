@@ -19,7 +19,6 @@ XEvent         Report;
 XVisualInfo    MyVisualInfo;
 ULONG          MyBlack, MyWhite, MyRed, MyBlue, MyGreen, MyPink;
 ULONG          TempScala[100];
-Colormap       cmap;
 int            MyScreenNumber, Width, Height, err;
 int            i, res;
 char          *WindowName=(char*)"DemoX    <c> 2008 Dr. Gorontzi";
@@ -42,17 +41,19 @@ void OpenVideo()
    
    MyDisplay             = XOpenDisplay(NULL);
    vi                    = glXChooseVisual(MyDisplay, 0, att);
-   cmap                  = XCreateColormap(MyDisplay, root, vi->visual, AllocNone);
-   MyScreen              = (Screen*)DefaultScreenOfDisplay(MyDisplay);
    MyScreenNumber        = DefaultScreen(MyDisplay);
-   Width                 = DisplayWidth( MyDisplay, MyScreenNumber);
-   Height                = DisplayHeight(MyDisplay, MyScreenNumber);
    RootWin               = RootWindow(MyDisplay, MyScreenNumber);
-   MyWindow              = XCreateSimpleWindow(MyDisplay, RootWin, 
+   MyScreen              = (Screen*)DefaultScreenOfDisplay(MyDisplay);
+   Width                 = DisplayWidth(MyDisplay, MyScreenNumber);
+   Height                = DisplayHeight(MyDisplay, MyScreenNumber);
+   MyWindow              = XCreateWindow(MyDisplay, RootWin, 0, 0, XSIZE, YSIZE, 1, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &Attr);
+
+   /*MyWindow              = XCreateSimpleWindow(MyDisplay, RootWin, 
                                                0, 0, XSIZE, YSIZE, 1,                   // 1 = Border Width
                                                WhitePixel(MyDisplay, MyScreenNumber),
-                                               BlackPixel(MyDisplay, MyScreenNumber));
+                                               BlackPixel(MyDisplay, MyScreenNumber)); */
    err                   = XStringListToTextProperty(&WindowName, 1, &WindowNameX);
+   
 
    C_Hints.res_class     = (char*)"PF Window";
    C_Hints.res_name      = (char*)"PF";
@@ -69,7 +70,6 @@ void OpenVideo()
    SizeHints.max_width   = 10;
 
    XSetWMProperties(MyDisplay, MyWindow, &WindowNameX, &WindowNameX, 0, 0, &SizeHints, &WM_Hints, &C_Hints);
-   Attr.colormap         = cmap;
    Attr.save_under       = TRUE;                                            // Andere Windows nicht �berschreiben.
    Attr.backing_store    = Always; //WhenMapped;                            // Unser Window nicht ueberschreiben lassen.
    Attr.event_mask       = ExposureMask | KeyPressMask | ButtonMotionMask   // Das interessiert uns alles.
@@ -91,9 +91,8 @@ void OpenVideo()
    XMapWindow(MyDisplay, MyWindow);
 
    // Zum Zeichen in das Fenster braucht man einen "Graphical Context" (GC)
-   glc                   = glXCreateContext(MyDisplay, vi, NULL, GL_TRUE);
+   glc                   = glXCreateContext(MyDisplay, vi, NULL, 1);
    glXMakeCurrent(MyDisplay, MyWindow, glc);
-   glEnable(GL_DEPTH_TEST); 
 
 /*
    // Zum Zeichen in das Fenster braucht man einen "Graphical Context" (GC)
